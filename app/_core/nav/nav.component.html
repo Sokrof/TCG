@@ -1,0 +1,26 @@
+<div class="toolbar" role="banner">
+    <a href="" class="flex items-center">
+        <img width="40" alt="Logo Pokemón" src="../../../assets/icon.png" />
+        <span>Pokémon</span>
+    </a>
+    <div class="spacer"></div>
+    <a type="button" [routerLink]="['/']"
+        class="mr-2 cursor-pointer inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+        Mazos
+        <span *ngIf="numDecks > 0"
+            class="inline-flex items-center justify-center w-4 h-4 ms-2 text-xs font-semibold text-blue-800 bg-blue-200 rounded-full">{{numDecks}}
+        </span>
+    </a>
+
+    <a type="button" [routerLink]="['/create', null]"
+        class="mr-2 cursor-pointer inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+        <svg class="h-4 w-4 text-white mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <line x1="12" y1="8" x2="12" y2="16" />
+            <line x1="8" y1="12" x2="16" y2="12" />
+        </svg>
+        Nuevo Mazo
+    </a>
+
+</div>
