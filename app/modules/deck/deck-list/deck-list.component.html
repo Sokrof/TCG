@@ -1,0 +1,231 @@
+<div class="content" role="main">
+
+    <app-title-page title="Mazos"></app-title-page>
+
+    <ng-container *ngIf="decks && decks.length > 0; else noDecksRef">
+        <div class="card-container">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <ng-container *ngFor="let deck of decks">
+                    <div class="card card-deck">
+
+                        <div class="flex justify-center">
+                            <img width="130" alt="Deck" src="../../../../assets/cards.png" alt="">
+                        </div>
+
+                        <div class="flex justify-center mb-2">
+                            <p>{{ deck.name }}</p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs text-gray-900 my-2">
+                                <i>El mazo tiene <b>{{deck.cards.length }}</b> carta/s{{deck.cards.length > 1 ? '(s)' :
+                                    ''}}</i>
+                            </p>
+                        </div>
+
+                        <div class="flex justify-between pt-2 border-t border-solid border-blueGray-200 rounded-t">
+                            <a class="cursor-pointer" (click)="detailDeck(deck)">
+                                <svg class="h-6 w-6 text-slate-700" width="24" height="24" viewBox="0 0 24 24"
+                                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" />
+                                    <circle cx="12" cy="12" r="2" />
+                                    <path d="M2 12l1.5 2a11 11 0 0 0 17 0l1.5 -2" />
+                                    <path d="M2 12l1.5 -2a11 11 0 0 1 17 0l1.5 2" />
+                                </svg>
+                            </a>
+                            <a class="cursor-pointer" routerLink="/create/{{deck.id}}">
+                                <svg class="h-6 w-6 text-slate-700" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" />
+                                    <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
+                                    <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
+                                    <line x1="16" y1="5" x2="19" y2="8" />
+                                </svg>
+                            </a>
+                            <a class="cursor-pointer" (click)="deleteConfirm(deck.id)">
+                                <svg class="h-6 w-6 text-slate-700" width="24" height="24" viewBox="0 0 24 24"
+                                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" />
+                                    <line x1="4" y1="7" x2="20" y2="7" />
+                                    <line x1="10" y1="11" x2="10" y2="17" />
+                                    <line x1="14" y1="11" x2="14" y2="17" />
+                                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </ng-container>
+
+    <ng-template #noDecksRef>
+        <div class="flex flex-col items-center">
+            <h2 class="text-xl font-semibold">¡No se ha creado ningún mazo hasta el momento!</h2>
+
+            <a type="button" [routerLink]="['/create', null]"
+                class="mr-2 cursor-pointer inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                <svg class="h-4 w-4 text-white mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <line x1="12" y1="8" x2="12" y2="16" />
+                    <line x1="8" y1="12" x2="16" y2="12" />
+                </svg>
+                Nuevo mazo
+            </a>
+        </div>
+    </ng-template>
+
+    <div *ngIf="isDrawerOpen" class="fixed top-0 right-0 h-full w-1/2 bg-white shadow-lg z-50 overflow-y-auto drawer">
+        <div class="p-4">
+            <div class="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
+                <h3 class="text-2xl font-semibold flex">{{deck.name}}</h3>
+                <button
+                    class="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
+                    (click)="toggleDrawer()">
+                    <span class="text-black h-6 w-6 text-4xl block outline-none focus:outline-none">×</span>
+                </button>
+            </div>
+
+            <div class="flex justify-between">
+                <div>
+                    <p class="my-4 text-blueGray-500 text-md leading-relaxed">
+                        <b>Cantidad de tipos</b> {{getNumberOfUniqueTypes()}}
+                    </p>
+                </div>
+                <div>
+                    <ng-container *ngFor="let supertype of getSupertypesWithCount() | keyvalue">
+                        <p class="my-4 text-blueGray-500 text-md leading-relaxed">
+                            <b>{{ supertype.key }}:</b> {{ supertype.value }}
+                        </p>
+                    </ng-container>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <ng-container *ngFor="let type of getTypesWithCount() | keyvalue">
+                    <p class="my-4 text-blueGray-500 text-md leading-relaxed mr-4">
+                        <b>{{ type.key }}:</b> {{ type.value }}
+                    </p>
+                </ng-container>
+            </div>
+
+            <div class="flex flex-col items-center">
+                <div class="card-container">
+                    <ng-container *ngIf="deck.cards && deck.cards.length > 0; else noCardsRef">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                            <a *ngFor="let card of deck.cards" class="card">
+                                <img [src]="card.images.small" alt="{{ card.name }}" (click)="getDetails(card)">
+                            </a>
+                        </div>
+                    </ng-container>
+
+                    <ng-template #noCardsRef>
+                        <div class="flex flex-col items-center">
+                            <h2 class="text-xl font-semibold">Ninguna carta encontrada, escribe el nombre correcto!</h2>
+                        </div>
+                    </ng-template>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div *ngIf="showModal"
+    class="overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none justify-center items-center flex">
+    <div class="relative w-auto my-6 mx-auto max-w-4xl">
+        <div
+            class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+            <div class="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
+                <h3 class="text-2xl font-semibold flex">Eliminar baraja</h3>
+                <button
+                    class="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
+                    (click)="toggleModal()">
+                    <span class="text-black h-6 w-6 text-4xl block outline-none focus:outline-none">×</span>
+                </button>
+            </div>
+            <div class="p-6">
+                <p class="my-4 text-blueGray-500 text-lg leading-relaxed">
+                    Si eliminar el mazo, no podrás recuperarlo!
+                    <br>¿Seguro que quieres eliminarlo?
+                </p>
+            </div>
+            <div class="flex items-center justify-end p-6 border-t border-solid border-blueGray-200 rounded-b">
+                <button
+                    class="bg-slate-400 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button" (click)="toggleModal()">Cancelar
+                </button>
+                <button
+                    class="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button" (click)="deleteDeck(deckId)">Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="showModal" class="opacity-25 fixed inset-0 z-40 bg-black"></div>
+
+<div *ngIf="showModalCard"
+    class="overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none justify-center items-center flex">
+    <div class="relative w-auto my-6 mx-auto max-w-4xl">
+        <div
+            class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+            <div class="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
+                <h3 class="text-2xl font-semibold flex">{{ cardDetails.name }}</h3>
+                <button
+                    class="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
+                    (click)="toggleModalDetails()">
+                    <span class="text-black h-6 w-6 text-4xl block outline-none focus:outline-none">×</span>
+                </button>
+            </div>
+            <div class="relative p-6 flex-auto grid grid-cols-3 gap-2">
+                <div class="col-span-1">
+                    <img [src]="cardDetails.images.small">
+                </div>
+                <div class="col-span-2">
+                    <div class="flex justify-between">
+                        <h3 class="text-xl font-bold flex">ID: {{cardDetails.id}}</h3>
+                        <h3 class="text-xl font-bold flex">{{cardDetails.supertype}} - {{cardDetails.subtypes}}</h3>
+                        <h3 class="text-xl font-bold flex">HP: {{cardDetails.hp}}</h3>
+                    </div>
+                    <h4 class="text-lg font-semibold">Datos:</h4>
+                    <p class="my-4 text-blueGray-500 text-lg leading-relaxed">
+                        {{cardDetails.rules}}
+                    </p>
+
+                    <p class="my-4 text-blueGray-500 text-lg leading-relaxed">
+                        <b>Tipos:</b> {{cardDetails.types}}
+                    </p>
+
+                    <h4 class="text-lg font-semibold">Movimientos:</h4>
+
+                    <div *ngFor="let attack of cardDetails.attacks">
+                        <h4 class="font-bold">{{ attack.name }}</h4>
+                        <p class="my-4 text-blueGray-500 text-lg leading-relaxed">{{ attack.text }}</p>
+                    </div>
+
+                    <div *ngFor="let weakness of cardDetails.weaknesses">
+                        <p class="my-4 text-blueGray-500 text-lg leading-relaxed">
+                            <b>Debilidades:</b> {{ weakness.type }} {{ weakness.value }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-end p-6 border-t border-solid border-blueGray-200 rounded-b">
+                <button
+                    class="bg-slate-400 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button" (click)="toggleModalDetails()">Salir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="showModalCard" class="opacity-25 fixed inset-0 z-40 bg-black"></div>

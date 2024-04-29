@@ -1,0 +1,185 @@
+<div class="content" role="main">
+
+    <app-title-page [title]="deckId == 'null' ? 'Nuevo Mazo' : 'Editar Mazo'"></app-title-page>
+
+    <div class="flex flex-col items-center border-b-2 pb-3">
+
+        <div class="container max-w-md">
+            <form autocom plete="off" novalidate [formGroup]="form" (ngSubmit)="onSubmit()">
+
+                <div>
+                    <input matInput [formControlName]="'name'" [(ngModel)]="deck.name"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="Escribe nombre del mazo" required />
+                </div>
+
+                <div class="flex justify-between mt-4">
+                    <button type="button" class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-700
+                    rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600
+                    dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer" (click)="toggleDrawer()">
+                        Añadir cartas
+                    </button>
+                    <button type="submit"
+                        class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer">
+                        Guardar
+                    </button>
+                </div>
+
+                <div *ngIf="formSubmitted && form.invalid">
+                    <p class="text-red-600" *ngIf="f.name.errors?.required">
+                        <i>Nombre del mazo obligatorio!</i>
+                    </p>
+                    <p class="text-red-600" *ngIf="f.cards.errors?.cardCount">
+                        <i>Debe tener entre 2 y 60 cartas!</i>
+                    </p>
+                    <p class="text-red-600" *ngIf="f.cards.errors?.uniqueCardName">
+                        <i>No puede haber más de 4 cartas con el mismo nombre</i>
+                    </p>
+                </div>
+
+            </form>
+
+            <p class="text-xs text-gray-900 mt-2" *ngIf="itensDeck.length > 0">
+                <i>El mazo contiene <b>{{itensDeck.length}}</b> carta/s{{itensDeck.length > 1 ? '(s)' : ''}}</i>
+            </p>
+        </div>
+
+    </div>
+
+    <div class="card-container">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <a *ngFor="let card of itensDeck" class="card">
+                <img [src]="card.images.small" alt="{{ card.name }}" (click)="getDetails(card, true)">
+            </a>
+        </div>
+    </div>
+
+    <div *ngIf="isDrawerOpen" class="fixed top-0 right-0 h-full w-1/2 bg-white shadow-lg z-50 overflow-y-auto drawer">
+        <div class="p-4">
+            <div class="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
+                <h3 class="text-2xl font-semibold flex">CARTAS</h3>
+                <button
+                    class="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
+                    (click)="toggleDrawer()">
+                    <span class="text-black h-6 w-6 text-4xl block outline-none focus:outline-none">×</span>
+                </button>
+            </div>
+            <div class="flex flex-col items-center">
+                <div class="mt-4 min-w-[75%]">
+                    <label for="default-search"
+                        class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Buscar</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                            </svg>
+                        </div>
+                        <input type="text" id="default-search" [(ngModel)]="searchTerm" (input)="onInputChange()"
+                            class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="Digite o nome do Pokemón..." required />
+                    </div>
+                </div>
+
+                <app-loading *ngIf="isLoading"></app-loading>
+
+                <div class="card-container">
+                    <ng-container *ngFor="let type of types">
+                        <button class="card card-filter card-small" (click)="filterType(type)">
+                            <span>{{type}}</span>
+                        </button>
+                    </ng-container>
+                </div>
+
+                <div class="card-container">
+
+                    <ng-container *ngIf="cards && cards.length > 0; else noCardsRef">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                            <a *ngFor="let card of cards" class="card">
+                                <img [src]="card.images.small" alt="{{ card.name }}" (click)="getDetails(card, false)">
+                            </a>
+                        </div>
+                    </ng-container>
+
+                    <ng-template #noCardsRef>
+                        <div class="flex flex-col items-center">
+                            <h2 class="text-xl font-semibold">Ninguna carta encontrada, escribe el nombre correcto!</h2>
+                        </div>
+                    </ng-template>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div *ngIf="showModal"
+    class="overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none justify-center items-center flex">
+    <div class="relative w-auto my-6 mx-auto max-w-4xl">
+        <div
+            class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+            <div class="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
+                <h3 class="text-2xl font-semibold flex">{{ cardDetails.name }}</h3>
+                <button
+                    class="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
+                    (click)="toggleModal()">
+                    <span class="text-black h-6 w-6 text-4xl block outline-none focus:outline-none">×</span>
+                </button>
+            </div>
+            <div class="relative p-6 flex-auto grid grid-cols-3 gap-2">
+                <div class="col-span-1">
+                    <img [src]="cardDetails.images.small">
+                </div>
+                <div class="col-span-2">
+                    <div class="flex justify-between">
+                        <h3 class="text-xl font-bold flex">ID: {{cardDetails.id}}</h3>
+                        <h3 class="text-xl font-bold flex">{{cardDetails.supertype}} - {{cardDetails.subtypes}}</h3>
+                        <h3 class="text-xl font-bold flex">HP: {{cardDetails.hp}}</h3>
+                    </div>
+                    <h4 class="text-lg font-semibold">Datos:</h4>
+                    <p class="my-4 text-blueGray-500 text-lg leading-relaxed">
+                        {{cardDetails.rules}}
+                    </p>
+
+                    <p class="my-4 text-blueGray-500 text-lg leading-relaxed">
+                        <b>tipos:</b> {{cardDetails.types}}
+                    </p>
+
+                    <h4 class="text-lg font-semibold">Movimientos:</h4>
+
+                    <div *ngFor="let attack of cardDetails.attacks">
+                        <h4 class="font-bold">{{ attack.name }}</h4>
+                        <p class="my-4 text-blueGray-500 text-lg leading-relaxed">{{ attack.text }}</p>
+                    </div>
+
+                    <div *ngFor="let weakness of cardDetails.weaknesses">
+                        <p class="my-4 text-blueGray-500 text-lg leading-relaxed">
+                            <b>Debilidades:</b> {{ weakness.type }} {{ weakness.value }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-end p-6 border-t border-solid border-blueGray-200 rounded-b">
+                <button
+                    class="bg-slate-400 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button" (click)="toggleModal()">Cancelar
+                </button>
+
+                <button
+                    class="bg-red-600 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button" (click)="deleteCartDeck(cardDetails)" *ngIf="isDeck">Eliminar
+                </button>
+
+                <button
+                    class="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button" (click)="addToDeck(cardDetails)" *ngIf="!isDeck">Añadir carta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="showModal" class="opacity-25 fixed inset-0 z-40 bg-black"></div>
